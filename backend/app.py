@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -26,7 +26,7 @@ def hello():
 
 @app.get("/api/hello")
 def hello_world():
-    return {"message": "Hello World by FastAPI"}
+    return {"message": "Hello! Kaori!"}
 
 @app.get("/api/multiply/{id}")
 def multiply(id: int):
@@ -46,13 +46,21 @@ def echo(message: EchoMessage):
 # Must課題②-1【割り算API】フロントエンドから送られた数値を2で割ってレスポンスするエンドポイントを以下に作成してください
 # 【注意！】この課題は生成AIを使わずにトライください！（上記の既存エンドポイントをアレンジしてみてください）
 # 整数は「int(*integer)」型、文字列は「str(*string)」型になります
-
+@app.get("/api/divide/{id}")
+def divide(id: int):
+    print("divide")
+    divided_value = id // 2
+    return {"divided_value": divided_value}
 
 # Want課題①-1【文字数カウントAPI】フロントエンドから送られた文字列をカウントしてレスポンスするエンドポイントを以下に作成してください
 # 【注意！】この課題は生成AIを使わずにトライください！（上記の既存エンドポイントをアレンジしてみてください）
 # 整数は「int(*integer)」型、文字列は「str(*string)」型になります
 # 文字数のカウントは、len関数でカウントできます *例:text_length = len(カウントしたい文字列)
-
+@app.get("/api/count/{id}")
+def count(id: str):
+    print("count")
+    count_text = len(id)
+    return {"count_text": count_text}
 
 # 超Want課題①【HTMLをレスポンスする】backendフォルダ直下のindex.htmlをレスポンスするエンドポイントを以下に作成してください
 # Jinja2Templatesライブラリを使うと便利です

@@ -1,60 +1,80 @@
-'use client';
-import { useState } from 'react';
+"use client";
+import { useState } from "react";
 
 export default function Home() {
   // useStateを使った値（状態）管理
-  const [getMessage, setGetMessage] = useState('');
-  const [multiplyNumber, setMultiplyNumber] = useState('');
-  const [multiplyResult, setMultiplyResult] = useState('');
-  const [postMessage, setPostMessage] = useState('');
-  const [postResult, setPostResult] = useState('');
-
-  // Must課題②:割り算用のuseState関数を追加
-
-
+  const [getMessage, setGetMessage] = useState("");
+  const [multiplyNumber, setMultiplyNumber] = useState("");
+  const [multiplyResult, setMultiplyResult] = useState("");
+  const [divideNumber, setDivideNumber] = useState(""); // divideNumber用のuseState
+  const [divideResult, setDivideResult] = useState(""); // Must課題②:割り算用のuseState関数を追加
+  const [postMessage, setPostMessage] = useState("");
+  const [postResult, setPostResult] = useState("");
   // Want課題①:文字列カウント用のuseStateを追加
-
+  const [countText, setCountText] = useState(""); // countText用のuseState
+  const [countResult, setCountResult] = useState(""); // Must課題②:文字カウント用のuseState関数を追加
 
   // FastAPIのエンドポイント設定
   const handleGetRequest = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/hello');
+      const response = await fetch("http://localhost:8000/api/hello");
       const data = await response.json();
       setGetMessage(data.message);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
   const handleMultiplyRequest = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/multiply/${multiplyNumber}`);
+      const response = await fetch(
+        `http://localhost:8000/api/multiply/${multiplyNumber}`
+      );
       const data = await response.json();
-      setMultiplyResult(data.doubled_value.toString());
+      setMultiplyResult(data.doubled_value);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
+  // Want課題①:文字列カウント用の関数を追加
+  const handleCountRequest = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/count/${countText}`
+      );
+      const data = await response.json();
+      setCountResult(data.count_text); // 文字数のカウントの結果は数値なので、そのまま表示しても構わない（toString構文不要？）
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
   // Must課題②:割り算用の関数追加
-
-
-　// Want課題①:文字列カウント用の関数を追加
-
+  const handleDivideRequest = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/divide/${divideNumber}`
+      );
+      const data = await response.json();
+      setDivideResult(data.divided_value);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   const handlePostRequest = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/echo', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/api/echo", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ message: postMessage }),
       });
       const data = await response.json();
       setPostResult(data.message);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -82,7 +102,9 @@ export default function Home() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-4">IDを指定してGETリクエストを送信</h2>
+          <h2 className="text-xl font-bold mb-4">
+            数値を2倍するリクエストを送信
+          </h2>
           <div className="flex gap-2">
             <input
               type="number"
@@ -105,9 +127,30 @@ export default function Home() {
         {/* Must課題②-2:
           上記の「数値を2倍にするリクエストを送信」を参考に、「数値を2で割るリクエストを送信」を作成してください
           「Must課題②-1で作成したエンドポイント(app.py)」へリクエストを送り、2で割った数値を受け取り、表示するようにしてください
-          なお、上段にuseState関数を追加し、「数値を半分にするリクエストを送信」を押した後に、レスポンスが表示されるようにしてください
-        {/*【注意！】この課題は生成AIを使わずにトライください！（上記の既存関数をアレンジして呼び出してください）*/}
+          なお、上段にuseState関数を追加し、「数値を半分にするリクエストを送信」を押した後に、レスポンスが表示されるようにしてください*/}
+        {/* 【注意！】この課題は生成AIを使わずにトライください！（上記の既存関数をアレンジして呼び出してください）*/}
+
         <section>
+          <h2 className="text-xl font-bold mb-4">
+            数値を2で割るリクエストを送信
+          </h2>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              value={divideNumber}
+              onChange={(e) => setDivideNumber(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+            <button
+              onClick={handleDivideRequest}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              送信
+            </button>
+          </div>
+          {divideResult && (
+            <p className="mt-2">FastAPIからの応答: {divideResult}</p>
+          )}
         </section>
 
         {/* POSTリクエスト */}
@@ -135,11 +178,30 @@ export default function Home() {
         {/* Want課題①-2:
           「文字数をカウントするリクエストを送信」を作成してください
           app.pyの「Want課題①-1で自作したエンドポイント」へリクエストを送り、文字数を受け取り、表示するようにしてください
-          useState関数を追加し、「文字数をカウントするリクエストを送信」を押した後にレスポンスが表示されるようにしてください
+          useState関数を追加し、「文字数をカウントするリクエストを送信」を押した後にレスポンスが表示されるようにしてください*/}
         {/*【注意！】この課題は生成AIを使わずにトライください！（上記の既存関数をアレンジして呼び出してください）*/}
         <section>
+          <h2 className="text-xl font-bold mb-4">
+            文字数をカウントするリクエストを送信
+          </h2>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={countText}
+              onChange={(e) => setCountText(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+            <button
+              onClick={handleCountRequest}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              送信
+            </button>
+          </div>
+          {countResult && (
+            <p className="mt-2">FastAPIからの応答: {countResult}</p>
+          )}
         </section>
-
       </div>
     </div>
   );
